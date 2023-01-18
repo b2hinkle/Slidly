@@ -58,6 +58,11 @@
     Init()
     {
         this.Wrapper = document.getElementById(this.WrapperID);
+        if (this.Wrapper === null || this.Wrapper === undefined)
+        {
+            console.warn(`Slidly did not find a wrapper div of id ${this.WrapperID}`);
+            return;
+        }
         this.ParallaxContainers = document.querySelectorAll(this.ParallaxContainerClass);
         this.WapperOffset = 0; // how offset it is from the top
         this.WrapperScrollTop = 0; // Our version of scroll top. This tells us how far we have scrolled through our page (or at least how far the content inside the wrapper was scrolled)
