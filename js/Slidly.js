@@ -210,3 +210,15 @@
         return { transform: [`translate3d(0, ${-windowInnerHeight * viewportDistanceToTravelMultiplier}px, 0)`, `translate3d(0, ${windowInnerHeight * viewportDistanceToTravelMultiplier}px, 0)`] };
     }
 }
+
+/*!
+ * Get all direct descendant elements that match a test condition
+ * (c) 2021 Chris Ferdinandi, MIT License, https://gomakethings.com
+ * @param  {Node}   elem     The element to get direct descendants for
+ * @param  {Function} callback The test condition
+ * @return {Array}           The matching direct descendants
+ */
+function ImmediateChildrenQuerySelectAll(elem, callback)
+{
+    return Array.from(elem.children).filter(callback);
+}
