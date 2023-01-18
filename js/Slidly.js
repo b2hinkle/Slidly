@@ -66,7 +66,6 @@
         
         
         this.CurrentScrollPos = 0; // Current scroll position
-        this.TargetScrollPos = 0; // Target scroll position
         this.fakeScroll = document.createElement("div"); // The `fakeScroll` is an element to make the page scrollable
         this.fakeScroll.style.position = "absolute";
         this.fakeScroll.style.top = "0";
@@ -167,8 +166,8 @@
         }*/
 
         // Scroll the wrapper (whole page)
-        this.TargetScrollPos = window.scrollY || window.pageYOffset || document.body.scrollTop + (document.documentElement && document.documentElement.scrollTop || 0);
-        const diff = this.TargetScrollPos - this.CurrentScrollPos; // Difference between `target` and `current` scroll position
+        const TargetScrollPos = window.scrollY || window.pageYOffset || document.body.scrollTop + (document.documentElement && document.documentElement.scrollTop || 0);
+        const diff = TargetScrollPos - this.CurrentScrollPos; // Difference between `target` and `current` scroll position
         const delta = Math.abs(diff) < 0.1 ? 0 : diff * this.WrapperScrollEase // `delta` is the value for adding to the `current` scroll position. If `diff < 0.1`, make `delta = 0`, so the animation would not be endless
         if (delta !== 0)
         {
@@ -177,9 +176,15 @@
         } 
         else
         {
-            this.CurrentScrollPos = this.TargetScrollPos // Update `current`, and finish the animation loop
+            this.CurrentScrollPos = TargetScrollPos // Update `current`, and finish the animation loop
+        }
+
+        if (this.CurrentScrollPos == 0) // if we are about to translate to 0
+        {
+            this.CurrentScrollPos = .00001; // translate to something else since it thinks it can optimize and do nothing when we tell it 0.  ¯\_(ツ)_/¯
         }
         this.TranslateElement(this.Wrapper, 0, -this.CurrentScrollPos, 0);
+        console.log(-this.CurrentScrollPos)
 
         // Offset the parallax elements
         const ParallaxContainersLength = this.ParallaxContainers.length;
