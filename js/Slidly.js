@@ -1,11 +1,11 @@
 ﻿class Slidly
 {
-    constructor(inWrapperID = "SlidlyWrapper", inParallaxContainerClass = ".ParallaxContainer", inParallaxElementClass = ".ParallaxElement", inWrapperSpeed = 1, allowOnMobile = true)
+    constructor(inWrapperID = "SlidlyWrapper", inParallaxContainerClass = ".ParallaxContainer", inParallaxElementClass = ".ParallaxElement", inWrapperScrollEase = 1/*0.075*/, allowOnMobile = true)
     {
         this.WrapperID = inWrapperID;
         this.ParallaxContainerClass = inParallaxContainerClass;
         this.TargetClass = inParallaxElementClass;
-		this.WrapperSpeed = inWrapperSpeed;
+		this.WrapperScrollEase = inWrapperScrollEase;
 
         if (this.IsSupported())
         {
@@ -63,16 +63,25 @@
             console.warn(`Slidly did not find a wrapper div of id ${this.WrapperID}`);
             return;
         }
+        
+        
+        this.CurrentScrollPos = 0; // Current scroll position
+        this.TargetScrollPos = 0; // Target scroll position
+        this.fakeScroll = document.createElement("div"); // The `fakeScroll` is an element to make the page scrollable
+        this.fakeScroll.style.position = "absolute";
+        this.fakeScroll.style.top = "0";
+        this.fakeScroll.style.width = "1px";
+        this.UpdateFakeScrollHeight(); // sets the div's height to the SlidlyWrapper's height
+        document.body.appendChild(this.fakeScroll); // Here we are creating it and appending it to the body
+
+
         this.ParallaxContainers = document.querySelectorAll(this.ParallaxContainerClass);
-        this.WapperOffset = 0; // how offset it is from the top
-        this.WrapperScrollTop = 0; // Our version of scroll top. This tells us how far we have scrolled through our page (or at least how far the content inside the wrapper was scrolled)
         /*this.prevTimestamp = -1; // -1 will indicate the first paint we are ticking on*/
         
         // ---------- BEGIN Init things ----------
-        document.body.style.height = `${this.Wrapper.clientHeight}px`; // document body will determine the height/scrolling of our page
-        addEventListener("resize", this.UpdateBodyHeight.bind(this));  // update the body height on window resize/zoom
-        this.BodyResizeObserver = new ResizeObserver(this.OnWrapperResizeObserved.bind(this)); // update the body height on Wrapper height changes
-        this.BodyResizeObserver.observe(this.Wrapper);
+        addEventListener("resize", this.UpdateFakeScrollHeight.bind(this));  // update the body height on window resize/zoom
+        this.FakeScrollResizeObserver = new ResizeObserver(this.OnWrapperResizeObserved.bind(this)); // update the FakeScroll div height on Wrapper height changes
+        this.FakeScrollResizeObserver.observe(this.Wrapper);
 
         this.Wrapper.style.width = "100%";
         this.Wrapper.style.position = "fixed";
@@ -123,15 +132,15 @@
         {
             if (entry.target == this.Wrapper)
             {
-                this.UpdateBodyHeight();
+                this.UpdateFakeScrollHeight();
             }
             
         });
     }
 
-    UpdateBodyHeight()
+    UpdateFakeScrollHeight()
     {
-        document.body.style.height = `${this.Wrapper.clientHeight}px`;
+        this.fakeScroll.style.height = `${this.Wrapper.getBoundingClientRect().height || this.Wrapper.clientHeight}px`;
     }
     // Important since WAAPI keys can't be dynamic
     RefreshAnimationKeys()
@@ -158,10 +167,19 @@
         }*/
 
         // Scroll the wrapper (whole page)
-        const scrollTop = window.scrollY || window.pageYOffset || document.body.scrollTop + (document.documentElement && document.documentElement.scrollTop || 0);
-        this.WapperOffset += (scrollTop - this.WapperOffset) * this.WrapperSpeed;
-        this.WrapperScrollTop = (Math.round(this.WapperOffset * 100) / 100);
-        this.TranslateElement(this.Wrapper, 0, -this.WrapperScrollTop, 0);
+        this.TargetScrollPos = window.scrollY || window.pageYOffset || document.body.scrollTop + (document.documentElement && document.documentElement.scrollTop || 0);
+        const diff = this.TargetScrollPos - this.CurrentScrollPos; // Difference between `target` and `current` scroll position
+        const delta = Math.abs(diff) < 0.1 ? 0 : diff * this.WrapperScrollEase // `delta` is the value for adding to the `current` scroll position. If `diff < 0.1`, make `delta = 0`, so the animation would not be endless
+        if (delta !== 0)
+        {
+            this.CurrentScrollPos += delta // Update `current` scroll position
+            this.CurrentScrollPos = parseFloat(this.CurrentScrollPos.toFixed(2)) // Round value for better performance
+        } 
+        else
+        {
+            this.CurrentScrollPos = this.TargetScrollPos // Update `current`, and finish the animation loop
+        }
+        this.TranslateElement(this.Wrapper, 0, -this.CurrentScrollPos, 0);
 
         // Offset the parallax elements
         const ParallaxContainersLength = this.ParallaxContainers.length;
@@ -169,7 +187,7 @@
         {
             const ParallaxContainer = this.ParallaxContainers[i];
 
-            const WrapperScrollTopToBotomOfViewport = (this.WrapperScrollTop + this.Window.innerHeight);                                   // get scroll distance to bottom of viewport.
+            const WrapperScrollTopToBotomOfViewport = (this.CurrentScrollPos + this.Window.innerHeight);                                   // get scroll distance to bottom of viewport.
             const elPositionRelativeToBottomOfViewport = (WrapperScrollTopToBotomOfViewport - ParallaxContainer.offsetTop);    // get element's position relative to bottom of viewport.
             const elTravelDistance = (this.Window.innerHeight + ParallaxContainer.offsetHeight);
             const currentProgress = (elPositionRelativeToBottomOfViewport / elTravelDistance);                          // calculate tween progresss.
