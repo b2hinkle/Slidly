@@ -75,7 +75,6 @@
 
 
         this.ParallaxContainers = document.querySelectorAll(this.ParallaxContainerClass);
-        /*this.prevTimestamp = -1; // -1 will indicate the first paint we are ticking on*/
         
         // ---------- BEGIN Init things ----------
         addEventListener("resize", this.UpdateFakeScrollHeight.bind(this));  // update the body height on window resize/zoom
@@ -159,12 +158,6 @@
 
     Tick(timestamp)
     {
-        /*let DeltaTime = 0;
-        if (this.prevTimestamp != -1)
-        {
-            DeltaTime = Math.min(1, (timestamp - this.prevTimestamp) / 1000);
-        }*/
-
         // Scroll the wrapper (whole page)
         const TargetScrollPos = window.scrollY || window.pageYOffset || document.body.scrollTop + (document.documentElement && document.documentElement.scrollTop || 0);
         const diff = TargetScrollPos - this.CurrentScrollPos; // Difference between `target` and `current` scroll position
@@ -173,38 +166,38 @@
         {
             this.CurrentScrollPos += delta // Update `current` scroll position
             this.CurrentScrollPos = parseFloat(this.CurrentScrollPos.toFixed(2)) // Round value for better performance
+
+            if (this.CurrentScrollPos == 0) // if we are about to translate to 0
+            {
+                this.CurrentScrollPos = .00001; // translate to something else since it thinks it can optimize and do nothing when we tell it 0. ¯\_(ツ)_/¯
+            }
+            this.TranslateElement(this.Wrapper, 0, -this.CurrentScrollPos, 0);
+            console.log(-this.CurrentScrollPos)
+
+            
+            // Offset the parallax elements
+            const ParallaxContainersLength = this.ParallaxContainers.length;
+            for (let i = 0; i < ParallaxContainersLength; i++)
+            {
+                const ParallaxContainer = this.ParallaxContainers[i];
+
+                const WrapperScrollTopToBotomOfViewport = (this.CurrentScrollPos + this.Window.innerHeight); // get scroll distance to bottom of viewport.
+                const elPositionRelativeToBottomOfViewport = (WrapperScrollTopToBotomOfViewport - ParallaxContainer.offsetTop); // get element's position relative to bottom of viewport.
+                const elTravelDistance = (this.Window.innerHeight + ParallaxContainer.offsetHeight);
+                const currentProgress = (elPositionRelativeToBottomOfViewport / elTravelDistance); // calculate tween progresss.
+
+                const OwnedParallaxAnimationsLength = ParallaxContainer.OwnedParallaxAnimations.length;
+                for (let j = 0; j < OwnedParallaxAnimationsLength; j++)
+                {
+                    ParallaxContainer.OwnedParallaxAnimations[j].currentTime = currentProgress;
+                }
+            }
         } 
         else
         {
             this.CurrentScrollPos = TargetScrollPos // Update `current`, and finish the animation loop
         }
 
-        if (this.CurrentScrollPos == 0) // if we are about to translate to 0
-        {
-            this.CurrentScrollPos = .00001; // translate to something else since it thinks it can optimize and do nothing when we tell it 0.  ¯\_(ツ)_/¯
-        }
-        this.TranslateElement(this.Wrapper, 0, -this.CurrentScrollPos, 0);
-        console.log(-this.CurrentScrollPos)
-
-        // Offset the parallax elements
-        const ParallaxContainersLength = this.ParallaxContainers.length;
-        for (let i = 0; i < ParallaxContainersLength; i++)
-        {
-            const ParallaxContainer = this.ParallaxContainers[i];
-
-            const WrapperScrollTopToBotomOfViewport = (this.CurrentScrollPos + this.Window.innerHeight);                                   // get scroll distance to bottom of viewport.
-            const elPositionRelativeToBottomOfViewport = (WrapperScrollTopToBotomOfViewport - ParallaxContainer.offsetTop);    // get element's position relative to bottom of viewport.
-            const elTravelDistance = (this.Window.innerHeight + ParallaxContainer.offsetHeight);
-            const currentProgress = (elPositionRelativeToBottomOfViewport / elTravelDistance);                          // calculate tween progresss.
-
-            const OwnedParallaxAnimationsLength = ParallaxContainer.OwnedParallaxAnimations.length;
-            for (let j = 0; j < OwnedParallaxAnimationsLength; j++)
-            {
-                ParallaxContainer.OwnedParallaxAnimations[j].currentTime = currentProgress;
-            }
-        }
-
-        /*this.prevTimestamp = timestamp;*/
         this.tickID = this.RAF.call(this.Window, this.Tick.bind(this));
     }
 
