@@ -114,7 +114,7 @@
                         iterations: Infinity,
                         direction: "normal",
                         fill: "both",
-                        composite: "add",
+                        composite: "add", // make the parallax animation additive to prevent overriding any existing css values
                         easing: "linear",
                     }
                 );
