@@ -34,6 +34,12 @@
         const scrollTop = window.scrollY || window.pageYOffset || document.body.scrollTop + (document.documentElement && document.documentElement.scrollTop);
         return this.Window !== undefined
             && this.Window.innerHeight !== undefined
+            && Math.abs !== undefined
+            && parseFloat !== undefined
+            && document.createElement !== undefined
+            && document.body !== undefined
+            && document.body.appendChild !== undefined
+            && document.body.getBoundingClientRect !== undefined
             && scrollTop !== undefined
             && document.getElementById !== undefined
             && document.querySelectorAll !== undefined
