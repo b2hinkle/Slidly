@@ -114,6 +114,7 @@
                         iterations: Infinity,
                         direction: "normal",
                         fill: "both",
+                        composite: "add",
                         easing: "linear",
                     }
                 );
