@@ -230,7 +230,9 @@
     {
         const windowInnerHeight = this.Window.innerHeight;
         const viewportDistanceToTravelMultiplier = animation.speedMultiplier;
-        return { transform: [`translate3d(0, ${-windowInnerHeight * viewportDistanceToTravelMultiplier}px, 0)`, `translate3d(0, ${windowInnerHeight * viewportDistanceToTravelMultiplier}px, 0)`] };
+        const YFrom = -windowInnerHeight * viewportDistanceToTravelMultiplier;
+        const YTo = windowInnerHeight * viewportDistanceToTravelMultiplier;
+        return { transform: [`translate3d(0, ${YFrom}px, 0)`, `translate3d(0, ${YTo}px, 0)`] };
     }
 }
 
