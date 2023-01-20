@@ -111,7 +111,7 @@
                     this.GetKeyframesForParallaxAnimation(animation),
                     {
                         duration: 1, // 1 allows us to easily scrub through the animation as if it was a percentage
-                        iterations: Infinity,
+                        iterations: 1,
                         direction: "normal",
                         fill: "both",
                         composite: "accumulate", // make the parallax animation accumulate with any already existing css values to keep the intended behavior of the animation and to prevent existing css values from being overrided
