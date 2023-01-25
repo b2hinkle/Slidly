@@ -115,6 +115,7 @@
                         direction: "normal",
                         fill: "both",
                         composite: "accumulate", // make the parallax animation accumulate with any already existing css values to keep the intended behavior of the animation and to prevent existing css values from being overrided
+                        /*iterationComposite: "accumulate",*/ // this could be very useful when it becomes fully supported (this in combination with infinate iterations could lead to a continued scroll throughout the page if we can somehow indicate the next iteration when seeking past a time of 1 in the Tick function)
                         easing: "linear",
                     }
                 );
@@ -193,6 +194,7 @@
                 const elPositionRelativeToBottomOfViewport = (WrapperScrollTopToBotomOfViewport - ParallaxContainer.offsetTop); // get element's position relative to bottom of viewport.
                 const elTravelDistance = (this.Window.innerHeight + ParallaxContainer.offsetHeight);
                 const currentProgress = (elPositionRelativeToBottomOfViewport / elTravelDistance); // calculate tween progresss.
+
 
                 const OwnedParallaxAnimationsLength = ParallaxContainer.OwnedParallaxAnimations.length;
                 for (let j = 0; j < OwnedParallaxAnimationsLength; j++)
