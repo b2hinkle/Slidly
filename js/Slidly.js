@@ -193,8 +193,13 @@
                 const WrapperScrollTopToBotomOfViewport = (this.CurrentScrollPos + this.Window.innerHeight); // get scroll distance to bottom of viewport.
                 const elPositionRelativeToBottomOfViewport = (WrapperScrollTopToBotomOfViewport - ParallaxContainer.offsetTop); // get element's position relative to bottom of viewport.
                 const elTravelDistance = (this.Window.innerHeight + ParallaxContainer.offsetHeight);
-                const currentProgress = (elPositionRelativeToBottomOfViewport / elTravelDistance); // calculate tween progresss.
+                let currentProgress = (elPositionRelativeToBottomOfViewport / elTravelDistance); // calculate tween progresss.
+                currentProgress = currentProgress * (elTravelDistance/(this.WrapperEl.getBoundingClientRect().height || this.WrapperEl.clientHeight));
 
+                if (i == 0)
+                {
+                    console.log(currentProgress);
+                }
 
                 const OwnedParallaxAnimationsLength = ParallaxContainer.OwnedParallaxAnimations.length;
                 for (let j = 0; j < OwnedParallaxAnimationsLength; j++)
@@ -233,8 +238,9 @@
     {
         const windowInnerHeight = this.Window.innerHeight;
         const viewportDistanceToTravelMultiplier = animation.speedMultiplier;
-        const YFrom = -windowInnerHeight * viewportDistanceToTravelMultiplier;
-        const YTo = windowInnerHeight * viewportDistanceToTravelMultiplier;
+        const PageContentHeight = this.WrapperEl.getBoundingClientRect().height || this.WrapperEl.clientHeight; 
+        const YFrom = -(PageContentHeight + windowInnerHeight * viewportDistanceToTravelMultiplier);
+        const YTo = (PageContentHeight + windowInnerHeight * viewportDistanceToTravelMultiplier);
         return { transform: [`translate3d(0, ${YFrom}px, 0)`, `translate3d(0, ${YTo}px, 0)`] };
     }
 }
